@@ -1,8 +1,13 @@
+import 'package:drivers_app/AllScreens/add_image.dart.dart';
+import 'package:drivers_app/AllScreens/loginScreen.dart';
 import 'package:drivers_app/AllScreens/mainscreen.dart';
 import 'package:drivers_app/AllScreens/registerationScreen.dart';
 import 'package:drivers_app/configMaps.dart';
 import 'package:drivers_app/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class CarInfoScreen extends StatefulWidget {
   static const String idScreen = "carinfo";
@@ -25,7 +30,16 @@ class _CarInfoScreenState extends State<CarInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.thumb_up),
+        label: Text('Credential'),
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddImage()));
+        },
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -106,6 +120,49 @@ class _CarInfoScreenState extends State<CarInfoScreen> {
                         );
                       }).toList(),
                     ),
+                    SizedBox(height: 20,),
+                    Text(
+                      "Credentials (Valid ID or NBI Clearance)",
+                      style:
+                      TextStyle(fontFamily: "Brand Bold", fontSize: 18.0),
+                    ),
+                    StreamBuilder(
+                      stream: FirebaseDatabase.instance.reference().child("drivers").child(FirebaseAuth.instance.currentUser.uid).child("credentials").onChildChanged,
+                      builder: (context, snapshot) {
+                        List<String> urls = [];
+                        if (snapshot.hasData && !snapshot.hasError && snapshot.data.snapshot.value!=null) {
+                          DataSnapshot snapshot1 = snapshot.data.snapshot;
+
+                          final keys = snapshot1.value.keys;
+                          for(var key in keys) {
+                            print(key);
+                            urls.add(snapshot1.value[key]['url']);
+                          }
+                        }
+
+                        return !(urls.length > 0)
+                            ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                            : Container(
+                          padding: EdgeInsets.all(4),
+                          child: GridView.builder(
+                              shrinkWrap: true,
+                              itemCount: urls.length,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4),
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.all(3),
+                                  child: FadeInImage.memoryNetwork(
+                                      fit: BoxFit.cover,
+                                      placeholder: kTransparentImage,
+                                      image: urls[index],
+                                ));
+                              }),
+                        );
+                      },
+                    ),
                     SizedBox(
                       height: 42.0,
                     ),
@@ -176,7 +233,15 @@ class _CarInfoScreenState extends State<CarInfoScreen> {
 
     driversRef.child(userId).child("car_details").set(carInfoMap);
 
+    FirebaseAuth.instance.signOut();
+    displayToastMessage(
+        "Please wait for the Admin Approval. Thank you.",
+        context);
+
     Navigator.pushNamedAndRemoveUntil(
-        context, MainScreen.idScreen, (route) => false);
+        context, LoginScreen.idScreen, (route) => false);
+
+    // Navigator.pushNamedAndRemoveUntil(
+    //     context, MainScreen.idScreen, (route) => false);
   }
 }

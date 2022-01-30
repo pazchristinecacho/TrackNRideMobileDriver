@@ -1,12 +1,14 @@
 import 'package:drivers_app/AllScreens/carInfoScreen.dart';
 import 'package:drivers_app/configMaps.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:drivers_app/AllScreens/loginScreen.dart';
 import 'package:drivers_app/AllScreens/mainscreen.dart';
 import 'package:drivers_app/AllWidgets/progressDialog.dart';
 import 'package:drivers_app/main.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RegisterationScreen extends StatelessWidget {
   static const String idScreen = "register";
@@ -124,6 +126,48 @@ class RegisterationScreen extends StatelessWidget {
                     ),
                     SizedBox(
                       height: 20.0,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        style: TextStyle(
+                            color: Colors.black87
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(text: 'By creating an account, you agree to our '),
+                          TextSpan(
+                              text: 'Terms of Service',
+                              style: TextStyle(
+                                color: Colors.blueAccent
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  const url = 'https://www.termsandconditionsgenerator.com/live.php?token=TSK9uVw9Hxh468oKrQdAQj7N14E2RJGu';
+                                  if (await canLaunch(url)) {
+                                    await launch(url);
+                                  } else {
+                                    throw 'Could not launch $url';
+                                  }
+                                }),
+                          TextSpan(text: ' and that you have read our '),
+                          TextSpan(
+                              text: 'Privacy Policy',
+                              style: TextStyle(
+                                  color: Colors.blueAccent
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  const url = 'https://www.privacypolicygenerator.info/live.php?token=8P8w3AThC5etsagWkJIc5MSJF5tSVq0Q';
+                                  if (await canLaunch(url)) {
+                                  await launch(url);
+                                  } else {
+                                  throw 'Could not launch $url';
+                                  }
+                                }),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
                     ),
                     RaisedButton(
                       color: Color.fromARGB(255, 235, 51, 5),

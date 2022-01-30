@@ -166,10 +166,41 @@ class _LoginScreenState extends State<LoginScreen> {
     if (firebaseUser != null) {
       driversRef.child(firebaseUser.uid).once().then((DataSnapshot snap) {
         if (snap.value != null) {
-          currentfirebaseUser = firebaseUser;
-          Navigator.pushNamedAndRemoveUntil(
-              context, MainScreen.idScreen, (route) => false);
-          displayToastMessage("you are logged-in now.", context);
+
+          if(snap.value['isArchive'] != null || snap.value['disable'] != null) {
+            Navigator.pop(context);
+            _firebaseAuth.signOut();
+            displayToastMessage(
+                "Your account is not valid anymore.",
+                context);
+          }else if(snap.value['isApprove'] == null || (snap.value['isApprove'] != null && snap.value['isApprove'] == false) ) {
+            Navigator.pop(context);
+            _firebaseAuth.signOut();
+            displayToastMessage(
+                "Your account is not approve yet. Please wait for the admin Approval. Thank you.",
+                context);
+          }else {
+
+            if (!firebaseUser.emailVerified) {
+              firebaseUser.sendEmailVerification()
+                  .then((value) {
+                _firebaseAuth.signOut();
+                displayToastMessage(
+                    "Your account is not email verified. We send an email verification to your email, please verify your email first.",
+                    context);
+              })
+                  .catchError((onError) => print(onError));
+
+            }else {
+              currentfirebaseUser = firebaseUser;
+              Navigator.pushNamedAndRemoveUntil(
+                  context, MainScreen.idScreen, (route) => false);
+              displayToastMessage("you are logged-in now.", context);
+            }
+
+
+          }
+
         } else {
           Navigator.pop(context);
           _firebaseAuth.signOut();
