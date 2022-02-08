@@ -122,10 +122,11 @@ class _CarInfoScreenState extends State<CarInfoScreen> {
                     ),
                     SizedBox(height: 20,),
                     Text(
-                      "Credentials (Valid ID or NBI Clearance)",
+                      "For account verification, upload a copy of your identity document (ex Driver License, NBI Clearance).",
                       style:
-                      TextStyle(fontFamily: "Brand Bold", fontSize: 18.0),
+                      TextStyle(fontFamily: "Brand Bold", fontSize: 16.0),
                     ),
+                    SizedBox(height: 30,),
                     StreamBuilder(
                       stream: FirebaseDatabase.instance.reference().child("drivers").child(FirebaseAuth.instance.currentUser.uid).child("credentials").onChildChanged,
                       builder: (context, snapshot) {
